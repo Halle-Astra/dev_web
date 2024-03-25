@@ -16,13 +16,14 @@ from starlette.middleware.sessions import SessionMiddleware
 import platform
 from loguru import logger 
 import sys 
+import time 
 logger.remove()
 logger.add(sys.stdout, level='DEBUG')
 
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=['*'],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -72,6 +73,9 @@ class PopenManager:
 
         self.cmd_count = 0
         self.end_mark = "\<end!\>"
+        self.executor=cmd
+
+    
 
     def input_unit(self, s_u):
         self.p.stdin.write(s_u+'\n')
@@ -85,7 +89,7 @@ class PopenManager:
             self.input_unit(string_unit)
 
         self.cmd_count+=1 
-        self.input_unit('echo '+self.end_mark+' '+str(self.cmd_count)) # 只能用这种方法来传递是否完成命令了，这样子可以保证子进程内的规则时顺序执行的。
+        self.input_unit('echo '+self.end_mark+''+str(self.cmd_count)) # 只能用这种方法来传递是否完成命令了，这样子可以保证子进程内的规则时顺序执行的。
 
     def get_info_from_queue(self, q):
         qsize = q.qsize() 
@@ -113,10 +117,12 @@ async def create_object(request:Request_With_Cookie): # 事实上真正起作用
                 p = PopenManager()            
                 simple_session[t] = {}
                 simple_session[t]['process'] = p
+                simple_session[t]['executor'] = p.executor
                 session['c_id'] = t
                 break
 
-    return json.dumps({"message": "Process created and stored in session, current processes have {}".format(len(simple_session))})
+    return json.dumps({"message": "Process created and stored in session, current processes have {}".format(len(simple_session)),
+            "executor":session})#simple_session[session['c_id']]['executor']})
 
 @app.post('/assign')
 async def submit(request:Request):
@@ -127,6 +133,7 @@ async def submit(request:Request):
     logger.debug("the request json is {}".format(data))
     p.input(cmd)
 
+    time.sleep(1)
     o = p.get_info_from_queue(p.queue_output)
     e = p.get_info_from_queue(p.queue_err)
 

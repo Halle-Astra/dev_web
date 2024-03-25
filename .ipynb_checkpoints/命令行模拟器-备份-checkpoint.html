@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<!-- saved from url=(0099)http://localhost:63342/devTool/index.html?_ijt=7rmnis0uc24arqopb6ocde032i&_ij_reload=RELOAD_ON_SAVE -->
+<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>命令行模拟器</title>
+<style>
+  body {
+    font-family: 'Consolas', 'Courier New', monospace;
+    background-color: #f7f7f7;
+    color: #333;
+    padding: 20px;
+  }
+  #output {
+    margin-top: 20px;
+    background-color: #e9e9e9;
+    padding: 10px;
+    border-radius: 5px;
+  }
+  #log {
+    margin-top: 20px;
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+  }
+</style>
+</head>
+<body>
+<div id="prompt">命令行模拟器&gt; </div>
+<textarea id="commandInput" placeholder="输入命令..."></textarea>
+<button id="executeBtn">执行</button>
+<div id="output"></div>
+<div id="log"></div>
+
+<script src="./命令行模拟器_files/jquery-3.1.1.min.js.下载"></script>
+<script>
+  document.getElementById('executeBtn').addEventListener('click', function() {
+    var command = document.getElementById('commandInput').value;
+
+      $.ajax({
+    url: 'http://localhost:8100/assign',
+    type: 'POST',
+    contentType: 'application/json; charset=UTF-8',
+    xhrFields: {
+        withCredentials: true // 允许跨域请求携带Cookie
+    },
+    data:JSON.stringify({
+        cmd: command
+    }),
+    success: function(data) {
+        // 请求成功时的回调函数
+        console.log(data);
+        // 模拟命令执行并显示输出
+        addOutput('命令输出： ' + data['output']);
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+        // 请求失败时的回调函数
+        console.error('Error:', textStatus, errorThrown);
+    }});
+
+    addLog('执行命令： ' + command);
+    // 清空输入框
+    document.getElementById('commandInput').value = '';
+  });
+
+  function addLog(message) {
+    var log = document.getElementById('log');
+    log.innerHTML += message + '<br>';
+  }
+
+  function addOutput(message) {
+    var output = document.getElementById('output');
+    output.innerHTML = message + '<br>';
+  }
+
+  // 启动时的默认行为
+  // 启动进程
+  start_process = function (){
+    $.ajax({
+    url: 'http://localhost:8100/create',
+    type: 'POST',
+    contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+    xhrFields: {
+        withCredentials: true // 允许跨域请求携带Cookie
+    },
+
+    success: function(data) {
+        // 请求成功时的回调函数
+        console.log(data);
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+        // 请求失败时的回调函数
+        console.error('Error:', textStatus, errorThrown);
+    }
+    });}
+  start_process();
+</script>
+
+
+<script>
+(function() {
+  var ws = new WebSocket('ws://' + window.location.host + 
+             '/jb-server-page?reloadMode=RELOAD_ON_SAVE&'+
+             'referrer=' + encodeURIComponent(window.location.pathname));
+  ws.onmessage = function (msg) {
+      if (msg.data === 'reload') {
+          window.location.reload();
+      }
+      if (msg.data.startsWith('update-css ')) {
+          var messageId = msg.data.substring(11);
+          var links = document.getElementsByTagName('link');
+          for (var i = 0; i < links.length; i++) {
+              var link = links[i];
+              if (link.rel !== 'stylesheet') continue;
+              var clonedLink = link.cloneNode(true);
+              var newHref = link.href.replace(/(&|\?)jbUpdateLinksId=\d+/, "$1jbUpdateLinksId=" + messageId);
+              if (newHref !== link.href) {
+                clonedLink.href = newHref;
+              }
+              else {
+                var indexOfQuest = newHref.indexOf('?');
+                if (indexOfQuest >= 0) {
+                  // to support ?foo#hash 
+                  clonedLink.href = newHref.substring(0, indexOfQuest + 1) + 'jbUpdateLinksId=' + messageId + '&' + 
+                                    newHref.substring(indexOfQuest + 1);
+                }
+                else {
+                  clonedLink.href += '?' + 'jbUpdateLinksId=' + messageId;
+                }
+              }
+              link.replaceWith(clonedLink);
+          }
+      }
+  };
+})();
+</script></body></html>

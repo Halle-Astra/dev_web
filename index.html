@@ -1,98 +1,12 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<title>命令行模拟器</title>
-<style>
-  body {
-    font-family: 'Consolas', 'Courier New', monospace;
-    background-color: #f7f7f7;
-    color: #333;
-    padding: 20px;
-  }
-  #output {
-    margin-top: 20px;
-    background-color: #e9e9e9;
-    padding: 10px;
-    border-radius: 5px;
-  }
-  #log {
-    margin-top: 20px;
-    background-color: #fff;
-    padding: 10px;
-    border-radius: 5px;
-  }
-</style>
-</head>
-<body>
-<div id="prompt">命令行模拟器> </div>
-<textarea id="commandInput" placeholder="输入命令..."></textarea>
-<button id="executeBtn">执行</button>
-<div id="output"></div>
-<div id="log"></div>
-
-<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-<script>
-  document.getElementById('executeBtn').addEventListener('click', function() {
-    var command = document.getElementById('commandInput').value;
-
-    $.ajax({
-    url: 'http://localhost:8100/assign',
-    type: 'POST',
-    contentType: 'application/json; charset=UTF-8',
-    xhrFields: {
-        withCredentials: true // 允许跨域请求携带Cookie
-    },
-    data:JSON.stringify({
-        cmd: command
-    }),
-    success: function(data) {
-        // 请求成功时的回调函数
-        console.log(data);
-        // 模拟命令执行并显示输出
-        addOutput('命令输出： ' + data['output']);
-    },
-    error: function(jqXHR, textStatus, errorThrown) {
-        // 请求失败时的回调函数
-        console.error('Error:', textStatus, errorThrown);
-    }});
-
-    addLog('执行命令： ' + command);
-    // 清空输入框
-    document.getElementById('commandInput').value = '';
-  });
-
-  function addLog(message) {
-    var log = document.getElementById('log');
-    log.innerHTML += message + '<br>';
-  }
-
-  function addOutput(message) {
-    var output = document.getElementById('output');
-    output.innerHTML = message + '<br>';
-  }
-
-  // 启动时的默认行为
-  // 启动进程
-  start_process = function (){
-    $.ajax({
-    url: 'http://localhost:8100/create',
-    type: 'POST',
-    contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-    xhrFields: {
-        withCredentials: true // 允许跨域请求携带Cookie
-    },
-
-    success: function(data) {
-        // 请求成功时的回调函数
-        console.log(data);
-    },
-    error: function(jqXHR, textStatus, errorThrown) {
-        // 请求失败时的回调函数
-        console.error('Error:', textStatus, errorThrown);
-    }
-    });}
-  start_process();
-</script>
-</body>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>dev_web</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <!-- built files will be auto injected -->
+  </body>
 </html>
