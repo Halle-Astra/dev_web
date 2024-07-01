@@ -17,6 +17,7 @@ import platform
 from loguru import logger 
 import sys 
 import time 
+from fastapi.responses import HTMLResponse 
 logger.remove()
 logger.add(sys.stdout, level='DEBUG')
 
@@ -140,8 +141,14 @@ async def submit(request:Request):
     ret = dict(output = o, err = e)
     return json.dumps(ret)
     
-    
 
+@app.get("/index.html", response_class=HTMLResponse)
+@app.get("/", response_class=HTMLResponse)
+async def entry():
+    file = "../dev.html"
+    with open(file, encoding='utf-8') as f:
+        content = f.read() 
+    return content 
 
 
 if __name__ == '__main__':
